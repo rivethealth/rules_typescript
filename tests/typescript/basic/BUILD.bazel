@@ -1,0 +1,14 @@
+load("@better_rules_typescript//rules/typescript/bzl:rules.bzl", "ts_library")
+load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "nodejs_binary")
+
+ts_library(
+    name = "js",
+    srcs = glob(["**/*.ts"]),
+    ts = "//:ts",
+)
+
+# nodejs_binary(
+#     name = "bin",
+#     dep = ":js",
+#     main = "example.js",
+# )

@@ -1,0 +1,61 @@
+workspace(name = "better_rules_typescript_test")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Skylib
+
+SKYLIB_VERSION = "16de038c484145363340eeaf0e97a0c9889a931b"
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "96e0cd3f731f0caef9e9919aa119ecc6dace36b149c2f47e40aa50587790402b",
+    strip_prefix = "bazel-skylib-%s" % SKYLIB_VERSION,
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/%s.tar.gz" % SKYLIB_VERSION],
+)
+
+# Protobuf
+
+PROTO_VERSION = "7e4afce6fe62dbff0a4a03450143146f9f2d7488"
+http_archive(
+    name = "rules_proto",
+    sha256 = "8e7d59a5b12b233be5652e3d29f42fba01c7cbab09f6b3a8d0a57ed6d1e9a0da",
+    strip_prefix = "rules_proto-%s" % PROTO_VERSION,
+    urls = ["https://github.com/bazelbuild/rules_proto/archive/%s.tar.gz" % PROTO_VERSION],
+)
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+rules_proto_dependencies()
+rules_proto_toolchains()
+
+# Protobuf
+
+PROTO_GRPC_VERSION = "2.0.0"
+http_archive(
+    name = "rules_proto_grpc",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/%s.tar.gz" % PROTO_GRPC_VERSION],
+    sha256 = "d771584bbff98698e7cb3cb31c132ee206a972569f4dc8b65acbdd934d156b33",
+    strip_prefix = "rules_proto_grpc-%s" % PROTO_GRPC_VERSION,
+)
+
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_toolchains", "rules_proto_grpc_repos")
+rules_proto_grpc_toolchains()
+rules_proto_grpc_repos()
+
+# JavaScript
+
+local_repository(
+    name = "better_rules_javascript",
+    path = "../../rules_javascript",
+)
+
+load("@better_rules_javascript//rules/bzl:workspace.bzl", javascript_repositories = "repositories")
+javascript_repositories()
+
+# better_rules_typescript_test
+
+local_repository(
+    name = "better_rules_typescript",
+    path = "..",
+)
+
+load("@better_rules_javascript//rules/npm/bzl:workspace.bzl", "npm")
+load(":npm_data.bzl", NPM_PACKAGES = "PACKAGES", NPM_ROOTS = "ROOTS")
+npm("npm", NPM_PACKAGES, NPM_ROOTS)
