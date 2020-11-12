@@ -13,9 +13,8 @@ TsInfo = provider(
 TsCompilerInfo = provider(
     doc = "TypeScript compiler",
     fields = {
-        "bin": "Compiler binary",
         "manifest": "Manifest",
         "runtime": "Runtime library",
-        "typescript": "Library",
+        "dep": "Library",
     }
 )

@@ -1,27 +1,29 @@
 load("@better_rules_javascript//rules/util/bzl:path.bzl", "runfile_path")
-load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "merge_js", "JsInfo", "create_module", "create_package", "create_package_dep")
+load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "merge_js", "add_globals", "JsInfo", "create_module", "create_package", "create_package_dep")
 load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "write_packages_manifest")
 load(":providers.bzl", "TsCompilerInfo", "TsInfo")
 
 def _ts_compiler_impl(ctx):
     typescript = ctx.attr.typescript[JsInfo]
+    dep = ctx.attr._dep[JsInfo]
+    dep = merge_js(dep, [typescript])
+    dep = add_globals(dep, [typescript.id])
+
     packages_manifest = ctx.actions.declare_file("%s/packages-manifest.txt" % ctx.label.name)
-    write_packages_manifest(ctx, packages_manifest, typescript)
+    write_packages_manifest(ctx, packages_manifest, dep)
 
     return TsCompilerInfo(
-        bin = ctx.attr._compiler,
-        runtime = ctx.attr.runtime[JsInfo],
+        dep = dep,
         manifest = packages_manifest,
-        typescript = typescript,
+        runtime = ctx.attr.runtime[JsInfo],
     )
 
 ts_compiler = rule(
     implementation = _ts_compiler_impl,
     attrs = {
-        "_compiler": attr.label(
-            cfg = "host",
-            default = "//rules/typescript:bin",
-            executable = True,
+        "_dep": attr.label(
+            default = "//rules/typescript:js",
+            providers = [JsInfo],
         ),
         "typescript": attr.label(
             mandatory = True,
@@ -49,9 +51,11 @@ def _ts_library_impl(ctx):
     modules = []
     args = ctx.actions.args()
 
-    args.add('--typescript-id', compiler.typescript.id)
-    args.add('--typescript-manifest', compiler.manifest)
+    args.add(compiler.manifest.path)
+    args.add(compiler.dep.id)
     inputs.append(compiler.manifest)
+
+    args.add(compiler.dep.name)
 
     for src in ctx.files.srcs:
         inputs.append(src)
@@ -70,9 +74,9 @@ def _ts_library_impl(ctx):
         modules.append(create_module(js_path, output))
 
     ctx.actions.run(
-        executable = compiler.bin.files_to_run,
+        executable = ctx.attr._runner.files_to_run,
         arguments = [args],
-        inputs = depset(inputs, transitive = [compiler.typescript.transitive_files]),
+        inputs = depset(inputs, transitive = [compiler.dep.transitive_files]),
         outputs = outputs,
     )
 
@@ -125,6 +129,12 @@ ts_library = rule(
         "compiler": attr.label(
             mandatory = True,
             providers = [TsCompilerInfo],
+        ),
+        "_runner": attr.label(
+            doc = "Node.js runner",
+            executable = True,
+            cfg = "host",
+            default = "@better_rules_javascript//rules/nodejs:bin",
         ),
     },
 )

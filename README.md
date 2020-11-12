@@ -5,13 +5,16 @@ Bazel rules for TypeScript, with an emphasis on idiomatic Bazel APIs.
 ## Features
 
 - [ ] library
-    - [x] compile
+    - [x] basic
     - [ ] declarations
     - [ ] worker
 - [ ] external dependency
     - [ ] @types
 - [ ] serialization
     - [ ] protobuf
+- [ ] targets
+    - [x] JS
+    - [ ] WebAssembly (AssemblyScript)
 - [ ] IDE
     - [ ] tsconfig
 - [ ] dev
@@ -59,7 +62,6 @@ http_archive(
 load("@better_rules_javascript//rules/bzl:workspace.bzl", typescript_repositories = "respositories")
 typescript_respositories()
 ```
-
 
 ## Usage
 
