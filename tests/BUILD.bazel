@@ -1,16 +1,9 @@
 load("@better_rules_typescript//rules/typescript/bzl:rules.bzl", "ts_compiler")
-load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "nodejs_binary")
 
 package(default_visibility = ["//visibility:public"])
 
-nodejs_binary(
-    name = "ts_bin",
-    dep = "@npm//typescript:js",
-    main = "lib/tsc",
-)
-
 ts_compiler(
     name = "ts",
-    compiler = ":ts_bin",
-    runtime = "@npm//tslib:js"
+    typescript = "@npm//typescript:js",
+    runtime = "@npm//tslib:js",
 )

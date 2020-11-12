@@ -1,4 +1,4 @@
-TsPackage = provider(
+TsInfo = provider(
     doc = "TypeScript package",
     fields = {
         "id": "ID",
@@ -10,10 +10,12 @@ TsPackage = provider(
     },
 )
 
-TsCompiler = provider(
+TsCompilerInfo = provider(
     doc = "TypeScript compiler",
     fields = {
-        "compiler": "Compiler",
-        "runtime": "Runtime library"
+        "bin": "Compiler binary",
+        "manifest": "Manifest",
+        "runtime": "Runtime library",
+        "typescript": "Library",
     }
 )

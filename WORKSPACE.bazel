@@ -46,9 +46,8 @@ local_repository(
     path = "../rules_javascript",
 )
 
+load("@better_rules_javascript//rules/bzl:workspace.bzl", javascript_repositories = "repositories")
+javascript_repositories()
 
-load("@better_rules_javascript//rules/bzl:workspace.bzl", javascript_repositories = "respositories")
-javascript_respositories()
-
-# load(":npm.bzl", "npm")
-# npm("npm")
+load("//rules/bzl:workspace.bzl", typescript_repositories = "repositories")
+typescript_repositories()

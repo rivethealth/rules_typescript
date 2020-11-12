@@ -1,0 +1,18 @@
+load("@better_rules_javascript//rules/javascript/bzl:rules.bzl", "js_library")
+load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+js_library(
+    name = "js",
+    srcs = glob(["compiler/**/*.js"]),
+    deps = [
+        "@better_rules_typescript_npm//argparse:js"
+    ],
+    strip_prefix = "better_rules_typescript/rules/typescript/compiler",
+)
+
+nodejs_binary(
+    name = "bin",
+    dep = ":js",
+)
