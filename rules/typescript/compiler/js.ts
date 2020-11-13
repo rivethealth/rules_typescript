@@ -27,43 +27,40 @@ function target(value: string) {
 }
 
 export default function (args) {
-  for (const [input_path, js_path, map_path] of args.files) {
-    const input = fs.readFileSync(input_path, "utf8");
-    const result = ts.transpileModule(input, {
-      fileName: input_path,
-      compilerOptions: {
-        importHelpers: true,
-        module: ts.ModuleKind.CommonJS,
-        sourceMap: true,
-        target: target(args.target),
-      },
-    });
-    for (const diagnostic of result.diagnostics) {
-      if (diagnostic.file) {
-        const {
-          line,
-          character,
-        } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
-        const message = ts.flattenDiagnosticMessageText(
-          diagnostic.messageText,
-          "\n",
-        );
-        console.log(
-          `${diagnostic.file.fileName} (${line + 1},${
-            character + 1
-          }): ${message}`,
-        );
-      } else {
-        console.log(
-          ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-        );
-      }
+  const input = fs.readFileSync(args.src, "utf8");
+  const result = ts.transpileModule(input, {
+    fileName: args.src,
+    compilerOptions: {
+      importHelpers: true,
+      module: ts.ModuleKind.CommonJS,
+      sourceMap: true,
+      target: target(args.target),
+    },
+  });
+  for (const diagnostic of result.diagnostics) {
+    if (diagnostic.file) {
+      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
+        diagnostic.start!,
+      );
+      const message = ts.flattenDiagnosticMessageText(
+        diagnostic.messageText,
+        "\n",
+      );
+      console.log(
+        `${diagnostic.file.fileName} (${line + 1},${
+          character + 1
+        }): ${message}`,
+      );
+    } else {
+      console.log(
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+      );
     }
-
-    fs.mkdirSync(path.dirname(js_path), { recursive: true });
-    fs.writeFileSync(js_path, result.outputText, "utf8");
-
-    fs.mkdirSync(path.dirname(map_path), { recursive: true });
-    fs.writeFileSync(map_path, result.sourceMapText, "utf8");
   }
+
+  fs.mkdirSync(path.dirname(args.js), { recursive: true });
+  fs.writeFileSync(args.js, result.outputText, "utf8");
+
+  fs.mkdirSync(path.dirname(args.map), { recursive: true });
+  fs.writeFileSync(args.map, result.sourceMapText, "utf8");
 }

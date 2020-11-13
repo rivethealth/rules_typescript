@@ -50,23 +50,21 @@ def _ts_library_impl(ctx):
 
     compiler = ctx.attr.compiler[TsCompilerInfo]
 
-    inputs = []
     outputs = []
     modules = []
-    args = ctx.actions.args()
-
-    args.add(compiler.manifest.path)
-    args.add(compiler.dep.id)
-    inputs.append(compiler.manifest)
-
-    args.add(compiler.dep.name)
-
-    args.add("js")
-
-    args.add("--target", compiler.target)
 
     for src in ctx.files.srcs:
-        inputs.append(src)
+        args = ctx.actions.args()
+
+        args.add(compiler.manifest.path)
+        args.add(compiler.dep.id)
+
+        args.add(compiler.dep.name)
+
+        args.add("js")
+
+        args.add("--target", compiler.target)
+
         path = runfile_path(ctx, src)
         if strip_prefix:
             if not path.startswith(strip_prefix + "/"):
@@ -80,18 +78,17 @@ def _ts_library_impl(ctx):
         outputs.append(output)
         output_map = ctx.actions.declare_file("%s/%s" % (ctx.label.name, map_path))
         outputs.append(output_map)
-        args.add("--file")
+        args.add("--js", output.path)
+        args.add("--map", output_map.path)
         args.add(src.path)
-        args.add(output.path)
-        args.add(output_map.path)
         modules.append(create_module(js_path, output))
 
-    ctx.actions.run(
-        executable = ctx.attr._runner.files_to_run,
-        arguments = [args],
-        inputs = depset(inputs, transitive = [compiler.dep.transitive_files]),
-        outputs = outputs,
-    )
+        ctx.actions.run(
+            executable = ctx.attr._runner.files_to_run,
+            arguments = [args],
+            inputs = depset([compiler.manifest, src], transitive = [compiler.dep.transitive_files]),
+            outputs = [output, output_map],
+        )
 
     deps = [create_package_dep(dep[JsInfo].name, dep[JsInfo].id) for dep in ctx.attr.deps if JsInfo in dep]
 

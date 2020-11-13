@@ -5,7 +5,9 @@ const subparsers = parser.add_subparsers({ dest: "command" });
 
 const jsParser = subparsers.add_parser("js");
 jsParser.add_argument("--target");
-jsParser.add_argument("--files", { action: "append", nargs: 3 });
+jsParser.add_argument("--map", { required: true });
+jsParser.add_argument("--js", { required: true });
+jsParser.add_argument("src");
 
 const dtsParser = subparsers.add_parser("dts");
 dtsParser.add_argument("files", { action: "append", nargs: 2 });
