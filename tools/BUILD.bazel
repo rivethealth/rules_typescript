@@ -1,0 +1,16 @@
+load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "nodejs_binary")
+load("@better_rules_javascript//rules/prettier/bzl:rules.bzl", "prettier")
+
+package(default_visibility = ["//visibility:public"])
+
+nodejs_binary(
+    name = "prettier_bin",
+    dep = "@better_rules_javascript_npm//prettier:js",
+    main = "bin-prettier",
+)
+
+prettier(
+    name = "prettier",
+    config = "//:prettierrc.yml",
+    prettier = "@better_rules_typescript_npm//prettier:js",
+)

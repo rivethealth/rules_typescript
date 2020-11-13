@@ -4,6 +4,6 @@ package(default_visibility = ["//visibility:public"])
 
 ts_compiler(
     name = "ts",
-    typescript = "@npm//typescript:js",
     runtime = "@npm//tslib:js",
+    typescript = "@npm//typescript:js",
 )

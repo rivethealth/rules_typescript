@@ -109,3 +109,10 @@ nodejs_binary(
 ```sh
 bazel run :bin
 ```
+
+## Developing
+
+The TS compiler code is written in TypeScript, so the JS build products are checked-in.
+
+Run scripts/gen-js.sh to refresh. If that breaks the compiler, you'll have to rollback to the
+last good state of rules/typescript/compiler-js.

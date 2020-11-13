@@ -16,5 +16,6 @@ TsCompilerInfo = provider(
         "manifest": "Manifest",
         "runtime": "Runtime library",
         "dep": "Library",
-    }
+        "target": "Language version",
+    },
 )

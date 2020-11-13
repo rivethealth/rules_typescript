@@ -1,12 +1,30 @@
 load("@better_rules_javascript//rules/javascript/bzl:rules.bzl", "js_library")
+load("//rules/typescript/bzl:rules.bzl", "ts_compiler", "ts_library")
 
 package(default_visibility = ["//visibility:public"])
 
 js_library(
     name = "js",
-    srcs = glob(["compiler/**/*.js"]),
+    srcs = glob(["compiler-js/**/*.js"]),
+    strip_prefix = "better_rules_typescript/rules/typescript/compiler-js",
     deps = [
-        "@better_rules_typescript_npm//argparse:js"
+        "@better_rules_typescript_npm//argparse:js",
+        "@better_rules_typescript_npm//tslib:js",
     ],
+)
+
+ts_library(
+    name = "ts",
+    srcs = glob(["compiler/**/*.ts"]),
+    compiler = ":tsc",
     strip_prefix = "better_rules_typescript/rules/typescript/compiler",
+    deps = [
+        "@better_rules_typescript_npm//argparse:js",
+    ],
+)
+
+ts_compiler(
+    name = "tsc",
+    runtime = "@better_rules_typescript_npm//tslib:js",
+    typescript = "@better_rules_typescript_npm//typescript:js",
 )

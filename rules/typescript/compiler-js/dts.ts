@@ -1,0 +1,1 @@
+{"version":3,"file":"dts.js","sourceRoot":"","sources":["dts.ts"],"names":[],"mappings":";;AAAA,mBAAwB,IAAI;IACzB,MAAM,IAAI,KAAK,CAAC,iBAAiB,CAAC,CAAC;AACtC,CAAC;AAFD,4BAEC"}

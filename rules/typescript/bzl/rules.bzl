@@ -1,5 +1,5 @@
 load("@better_rules_javascript//rules/util/bzl:path.bzl", "runfile_path")
-load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "merge_js", "add_globals", "JsInfo", "create_module", "create_package", "create_package_dep")
+load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "JsInfo", "add_globals", "create_module", "create_package", "create_package_dep", "merge_js")
 load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "write_packages_manifest")
 load(":providers.bzl", "TsCompilerInfo", "TsInfo")
 
@@ -16,6 +16,7 @@ def _ts_compiler_impl(ctx):
         dep = dep,
         manifest = packages_manifest,
         runtime = ctx.attr.runtime[JsInfo],
+        target = ctx.attr.target,
     )
 
 ts_compiler = rule(
@@ -29,11 +30,14 @@ ts_compiler = rule(
             mandatory = True,
             providers = [JsInfo],
         ),
+        "target": attr.string(
+            default = "es2017",
+        ),
         "runtime": attr.label(
             mandatory = True,
             providers = [JsInfo],
         ),
-    }
+    },
 )
 
 def _ts_library_impl(ctx):
@@ -57,6 +61,10 @@ def _ts_library_impl(ctx):
 
     args.add(compiler.dep.name)
 
+    args.add("js")
+
+    args.add("--target", compiler.target)
+
     for src in ctx.files.srcs:
         inputs.append(src)
         path = runfile_path(ctx, src)
@@ -66,11 +74,16 @@ def _ts_library_impl(ctx):
             path = path[len(strip_prefix + "/"):]
         if ctx.attr.prefix:
             path = ctx.attr.prefix + "/" + path
-        js_path = path.replace('.ts', '.js')
-        output = ctx.actions.declare_file('%s/%s' % (ctx.label.name, js_path))
+        js_path = path.replace(".ts", ".js")
+        map_path = path.replace(".ts", ".js.map")
+        output = ctx.actions.declare_file("%s/%s" % (ctx.label.name, js_path))
         outputs.append(output)
+        output_map = ctx.actions.declare_file("%s/%s" % (ctx.label.name, map_path))
+        outputs.append(output_map)
+        args.add("--file")
         args.add(src.path)
         args.add(output.path)
+        args.add(output_map.path)
         modules.append(create_module(js_path, output))
 
     ctx.actions.run(
@@ -96,12 +109,12 @@ def _ts_library_impl(ctx):
         globals = depset(),
         transitive_files = depset(outputs),
         transitive_packages = depset([js_package]),
-        transitive_source_maps = depset()
+        transitive_source_maps = depset(),
     )
     js_info = merge_js(js_info, [compiler.runtime] + [dep[JsInfo] for dep in ctx.attr.deps if JsInfo in dep])
 
     default_info = DefaultInfo(
-        files = depset(outputs)
+        files = depset(outputs),
     )
 
     return [default_info, js_info]
@@ -117,11 +130,14 @@ ts_library = rule(
             doc = "Dependencies",
             providers = [[JsInfo], [TsInfo]],
         ),
+        "lib": attr.string_list(
+            doc = "Library declarations",
+        ),
         "package_name": attr.string(
             doc = "Package name",
         ),
         "strip_prefix": attr.string(
-            doc = "Strip prefix"
+            doc = "Strip prefix",
         ),
         "prefix": attr.string(
             doc = "Prefix",
