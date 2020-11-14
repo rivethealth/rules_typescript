@@ -6,6 +6,12 @@ PACKAGES = [
         "deps": [],
     },
     {
+        "name": "@types/node@14.14.7",
+        "url": "https://registry.yarnpkg.com/@types/node/-/node-14.14.7.tgz#8ea1e8f8eae2430cf440564b98c6dfce1ec5945d",
+        "integrity": "sha512-Zw1vhUSQZYw+7u5dAwNbIA9TuTotpzY/OF7sJM9FqPOF3SPjKnxrjoTktXDZgUjybf4cWVBP7O8wvKdSaGHweg==",
+        "deps": [],
+    },
+    {
         "name": "argparse@2.0.1",
         "url": "https://registry.yarnpkg.com/argparse/-/argparse-2.0.1.tgz#246f50f3ca78a3240f6c997e8a9bd1eac49e4b38",
         "integrity": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==",
@@ -51,5 +57,9 @@ ROOTS = [
     {
         "name": "@types/argparse",
         "dep": "@types/argparse@2.0.2",
+    },
+    {
+        "name": "@types/node",
+        "dep": "@types/node@14.14.7",
     },
 ]

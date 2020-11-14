@@ -9,7 +9,7 @@ jsParser.add_argument("--map", { required: true });
 jsParser.add_argument("--js", { required: true });
 jsParser.add_argument("src");
 const dtsParser = subparsers.add_parser("dts");
-dtsParser.add_argument("files", { action: "append", nargs: 2 });
+dtsParser.add_argument("--file", { action: "append", nargs: 2 });
 const args = parser.parse_args();
 (async function () {
     switch (args.command) {

@@ -8,6 +8,7 @@ js_library(
     srcs = glob(["compiler-js/**/*.js"]),
     strip_prefix = "better_rules_typescript/rules/typescript/compiler-js",
     deps = [
+        "@better_rules_javascript//rules/javascript:resolver",
         "@better_rules_typescript_npm//argparse:js",
         "@better_rules_typescript_npm//tslib:js",
     ],
@@ -19,6 +20,9 @@ ts_library(
     compiler = ":tsc",
     strip_prefix = "better_rules_typescript/rules/typescript/compiler",
     deps = [
+        "@better_rules_javascript//rules/javascript:resolver",
+        "@better_rules_typescript_npm//@types/argparse:js",
+        "@better_rules_typescript_npm//@types/node:js",
         "@better_rules_typescript_npm//argparse:js",
     ],
 )

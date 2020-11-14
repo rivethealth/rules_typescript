@@ -3,10 +3,10 @@ TsInfo = provider(
     fields = {
         "id": "ID",
         "name": "Default module prefix",
+        "globals": "Depset of globally available packages",
         "transitive_files": "Depset of files",
         "transitive_packages": "Depset of packages",
         "transitive_declarations": "Depset of declaration packages",
-        "transitive_source_maps": "Depset of source maps",
     },
 )
 
