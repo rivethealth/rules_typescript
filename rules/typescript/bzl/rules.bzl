@@ -1,19 +1,21 @@
 load("@better_rules_javascript//rules/util/bzl:path.bzl", "runfile_path")
-load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "JsInfo", "add_globals", "create_module", "create_package", "create_package_dep", "merge_js")
+load("@better_rules_javascript//rules/javascript/bzl:providers.bzl", "JsInfo", "create_js", "create_module", "create_package", "create_package_dep", "merge_js")
 load("@better_rules_javascript//rules/nodejs/bzl:rules.bzl", "write_packages_manifest")
 load(":providers.bzl", "TsCompilerInfo", "TsInfo")
 
 def _ts_compiler_impl(ctx):
     typescript = ctx.attr.typescript[JsInfo]
     dep = ctx.attr._dep[JsInfo]
-    dep = merge_js(dep, [typescript])
-    dep = add_globals(dep, [typescript.id])
+
+    package_deps = [create_package_dep(dep.name, id) for id in dep.ids]
+    package = create_package("", "", deps = tuple(package_deps))
+    js_info = create_js(package, global_package_ids = typescript.ids, deps = [dep, typescript])
 
     packages_manifest = ctx.actions.declare_file("%s/packages-manifest.txt" % ctx.label.name)
-    write_packages_manifest(ctx, packages_manifest, dep)
+    write_packages_manifest(ctx, packages_manifest, js_info)
 
     return TsCompilerInfo(
-        dep = dep,
+        dep = js_info,
         manifest = packages_manifest,
         runtime = ctx.attr.runtime[JsInfo],
         target = ctx.attr.target,
@@ -58,8 +60,7 @@ def _ts_library_impl(ctx):
 
     ts_args = ctx.actions.args()
     ts_args.add(compiler.manifest.path)
-    ts_args.add(compiler.dep.id)
-    ts_args.add(compiler.dep.name)
+    ts_args.add("@better_rules_typescript/rules/typescript")
     ts_args.add("dts")
 
     for src in ctx.files.srcs:
@@ -75,8 +76,7 @@ def _ts_library_impl(ctx):
 
         args = ctx.actions.args()
         args.add(compiler.manifest.path)
-        args.add(compiler.dep.id)
-        args.add(compiler.dep.name)
+        args.add("@better_rules_typescript/rules/typescript")
         args.add("js")
         args.add("--target", compiler.target)
         js_path = path.replace(".ts", ".js")
@@ -113,25 +113,25 @@ def _ts_library_impl(ctx):
         outputs = ts_outputs,
     )
 
-    deps = [create_package_dep(dep[JsInfo].name, dep[JsInfo].id) for dep in ctx.attr.deps if JsInfo in dep]
-
+    package_deps = [
+        create_package_dep(dep[JsInfo].name, id)
+        for dep in ctx.attr.deps
+        if JsInfo in dep
+        for id in dep[JsInfo].ids
+    ]
     js_package = create_package(
-        id = ctx.label,
+        id = str(ctx.label),
         name = package_name,
-        main = None,
         modules = tuple(modules),
-        deps = tuple(deps),
+        deps = tuple(package_deps),
     )
 
-    js_info = JsInfo(
-        id = ctx.label,
-        name = package_name,
-        globals = depset(),
-        transitive_files = depset(outputs),
-        transitive_packages = depset([js_package]),
-        transitive_source_maps = depset(map_outputs),
+    js_info = create_js(
+        js_package,
+        files = outputs,
+        source_maps = map_outputs,
+        deps = [compiler.runtime] + [dep[JsInfo] for dep in ctx.attr.deps if JsInfo in dep],
     )
-    js_info = merge_js(js_info, [compiler.runtime] + [dep[JsInfo] for dep in ctx.attr.deps if JsInfo in dep])
 
     ts_deps = [create_package_dep(dep[TsInfo].name, dep[TsInfo].id) for dep in ctx.attr.deps if TsInfo in dep]
 

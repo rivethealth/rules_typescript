@@ -1,18 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ts = require("typescript");
+const resolver_1 = require("@better_rules_javascript/rules/javascript/resolver");
+const resolver = new resolver_1.Resolver();
 function compilerHost(files) {
     const compilerHost = ts.createCompilerHost({});
     compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
-        // console.log(moduleNames, containingFile);
-        const a = moduleNames.map(moduleName => ts.resolveModuleName(moduleName, containingFile, {}, {
+        console.log(moduleNames, containingFile);
+        const a = moduleNames.map((moduleName) => ts.resolveModuleName(moduleName, containingFile, {}, {
             fileExists: compilerHost.fileExists,
             readFile: compilerHost.readFile,
         }));
-        // console.log(a);
-        return a.map(a => (a.resolvedModule && { resolvedFileName: a.resolvedModule.resolvedFileName }));
+        console.log(a);
+        return a.map((a) => a.resolvedModule && {
+            resolvedFileName: a.resolvedModule.resolvedFileName,
+        });
     };
-    ((delegate) => compilerHost.writeFile = (fileName, contents, writeByteOrderMark, onError, sourceFiles) => {
+    ((delegate) => (compilerHost.writeFile = (fileName, contents, writeByteOrderMark, onError, sourceFiles) => {
         console.log(fileName);
         if (fileName.startsWith(process.cwd())) {
             fileName = fileName.slice(process.cwd().length + 1);
@@ -25,7 +29,7 @@ function compilerHost(files) {
         console.log(output);
         const result = delegate(output, contents, writeByteOrderMark, onError, sourceFiles);
         return result;
-    })(compilerHost.writeFile);
+    }))(compilerHost.writeFile);
     return compilerHost;
 }
 function default_1(args) {
@@ -39,7 +43,9 @@ function default_1(args) {
     // }
     const result = program.emit();
     console.log(result);
-    for (const diagnostic of ts.getPreEmitDiagnostics(program).concat(result.diagnostics)) {
+    for (const diagnostic of ts
+        .getPreEmitDiagnostics(program)
+        .concat(result.diagnostics)) {
         if (diagnostic.file) {
             const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
             const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");

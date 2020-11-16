@@ -3,10 +3,12 @@ import * as fs from "fs";
 import * as ts from "typescript";
 import { Resolver } from "@better_rules_javascript/rules/javascript/resolver";
 
+const resolver = new Resolver();
+
 function compilerHost(files: Map<string, string>): ts.CompilerHost {
   const compilerHost = ts.createCompilerHost({});
   compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
-    // console.log(moduleNames, containingFile);
+    console.log(moduleNames, containingFile);
     const a = moduleNames.map((moduleName) =>
       ts.resolveModuleName(
         moduleName,
@@ -18,7 +20,7 @@ function compilerHost(files: Map<string, string>): ts.CompilerHost {
         },
       ),
     );
-    // console.log(a);
+    console.log(a);
     return a.map(
       (a) =>
         a.resolvedModule && {
