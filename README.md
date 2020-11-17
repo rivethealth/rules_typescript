@@ -10,8 +10,10 @@ Bazel rules for TypeScript, with an emphasis on idiomatic Bazel APIs.
     - [ ] worker
 - [ ] external dependency
     - [ ] @types
+- [ ] lint
+    - [ ] typescript-eslint
 - [ ] serialization
-    - [ ] protobuf
+    - [ ] protobufjs
 - [ ] targets
     - [x] JS
     - [ ] WebAssembly (AssemblyScript)
@@ -76,7 +78,7 @@ export const example = "apple";
 **b.ts**
 
 ```ts
-import { a } from "./a"; 
+import { a } from "./a";
 console.log(a.example);
 ```
 
