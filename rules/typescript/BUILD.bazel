@@ -10,6 +10,7 @@ js_library(
     deps = [
         "@better_rules_javascript//rules/javascript:resolver",
         "@better_rules_typescript_npm//argparse:js",
+        "@better_rules_typescript_npm//source-map-support:js",
         "@better_rules_typescript_npm//tslib:js",
     ],
 )
@@ -24,6 +25,7 @@ ts_library(
         "@better_rules_typescript_npm//@types/argparse:js",
         "@better_rules_typescript_npm//@types/node:js",
         "@better_rules_typescript_npm//argparse:js",
+        "@better_rules_typescript_npm//source-map-support:js",
     ],
 )
 

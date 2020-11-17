@@ -1,33 +1,21 @@
-import * as path from "path";
-import * as fs from "fs";
 import * as ts from "typescript";
 import { Resolver } from "@better_rules_javascript/rules/javascript/resolver";
 
-const resolver = new Resolver();
-
-function compilerHost(files: Map<string, string>): ts.CompilerHost {
+/**
+ * Create compiler host
+ */
+function compilerHost(
+  resolver: Resolver,
+  files: Map<string, string>,
+): ts.CompilerHost {
   const compilerHost = ts.createCompilerHost({});
-  compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
-    console.log(moduleNames, containingFile);
-    const a = moduleNames.map((moduleName) =>
-      ts.resolveModuleName(
-        moduleName,
-        containingFile,
-        {},
-        {
-          fileExists: compilerHost.fileExists,
-          readFile: compilerHost.readFile,
-        },
-      ),
-    );
-    console.log(a);
-    return a.map(
-      (a) =>
-        a.resolvedModule && {
-          resolvedFileName: a.resolvedModule.resolvedFileName,
-        },
-    );
-  };
+  compilerHost.resolveModuleNames = (moduleNames, containingFile) =>
+    moduleNames.map((moduleName) => {
+      try {
+        return resolver.resolve(moduleName, containingFile);
+      } catch {}
+      return undefined;
+    });
 
   ((delegate: ts.WriteFileCallback) =>
     (compilerHost.writeFile = (
@@ -37,7 +25,6 @@ function compilerHost(files: Map<string, string>): ts.CompilerHost {
       onError,
       sourceFiles,
     ) => {
-      console.log(fileName);
       if (fileName.startsWith(process.cwd())) {
         fileName = fileName.slice(process.cwd().length + 1);
       }
@@ -46,7 +33,6 @@ function compilerHost(files: Map<string, string>): ts.CompilerHost {
       if (!output) {
         throw new Error(`Cannot find input ${input}`);
       }
-      console.log(output);
       const result = delegate(
         output,
         contents,
@@ -60,30 +46,64 @@ function compilerHost(files: Map<string, string>): ts.CompilerHost {
   return compilerHost;
 }
 
+/**
+ * TS path variations
+ */
+function pathVariations(request): string[] {
+  let variations: string[] = [];
+  if (request.endsWith(".js")) {
+    request = request.slice(-".js".length);
+    variations = [
+      `${request}.ts`,
+      `${request}.tsx`,
+      `${request}.d.ts`,
+      `${request}.js`,
+      `${request}.jsx`,
+    ];
+  } else {
+    variations = [
+      `${request}.ts`,
+      `${request}.tsx`,
+      `${request}.d.ts`,
+      `${request}.js`,
+      `${request}.jsx`,
+      `${request}/index.ts`,
+      `${request}/index.tsx`,
+      `${request}/index.d.ts`,
+      `${request}/index.js`,
+      `${request}/index.jsx`,
+    ];
+  }
+  return variations;
+}
+
+/**
+ * dts CLI
+ */
 export default function (args) {
-  const host = compilerHost(new Map(args.file));
+  const resolver = new Resolver(false, pathVariations);
+  Resolver.readManifest(resolver, args.manifest, (path) => path);
+
+  const host = compilerHost(resolver, new Map(args.src));
   const program = ts.createProgram(
-    args.file.map(([source]) => source),
-    {
-      emitDeclarationOnly: true,
-      declaration: true,
-    },
+    [...(args.dts || []), ...args.src.map(([source]) => source)],
+    { emitDeclarationOnly: true, declaration: true },
     host,
   );
 
-  // for (const [_, file] of args.file) {
-  //   fs.mkdirSync(path.dirname(file), { recursive: true });
-  // }
-
   const result = program.emit();
-  console.log(result);
 
-  for (const diagnostic of ts
-    .getPreEmitDiagnostics(program)
-    .concat(result.diagnostics)) {
+  const diagnostics=  ts.getPreEmitDiagnostics(program)
+  .concat(result.diagnostics);
+
+  if (!diagnostics.length) {
+    return;
+  }
+
+  for (const diagnostic of diagnostics) {
     if (diagnostic.file) {
       const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
-        diagnostic.start!,
+        diagnostic.start,
       );
       const message = ts.flattenDiagnosticMessageText(
         diagnostic.messageText,
@@ -100,4 +120,6 @@ export default function (args) {
       );
     }
   }
+
+  process.exit(1);
 }

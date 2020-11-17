@@ -1,0 +1,13 @@
+load("@better_rules_typescript//rules/typescript/bzl:rules.bzl", "ts_import", "ts_library")
+
+ts_import(
+    name = "lib",
+    ambiant = ["ambiant.d.ts"],
+)
+
+ts_library(
+    name = "example",
+    srcs = ["example.ts"],
+    compiler = "//:ts",
+    deps = [":lib"],
+)

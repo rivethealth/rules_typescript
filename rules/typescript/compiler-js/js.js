@@ -26,6 +26,9 @@ function target(value) {
             return ts.ScriptTarget.ESNext;
     }
 }
+/**
+ * js CLI
+ */
 function default_1(args) {
     const input = fs.readFileSync(args.src, "utf8");
     const result = ts.transpileModule(input, {

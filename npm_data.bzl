@@ -18,9 +18,36 @@ PACKAGES = [
         "deps": [],
     },
     {
+        "name": "buffer-from@1.1.1",
+        "url": "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef",
+        "integrity": "sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==",
+        "deps": [],
+    },
+    {
         "name": "prettier@2.1.2",
         "url": "https://registry.yarnpkg.com/prettier/-/prettier-2.1.2.tgz#3050700dae2e4c8b67c4c3f666cdb8af405e1ce5",
         "integrity": "sha512-16c7K+x4qVlJg9rEbXl7HEGmQyZlG4R9AgP+oHKRMsMsuk8s+ATStlf1NpDqyBI1HpVyfjLOeMhH2LvuNvV5Vg==",
+        "deps": [],
+    },
+    {
+        "name": "source-map-support@0.5.19",
+        "url": "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61",
+        "integrity": "sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==",
+        "deps": [
+            {
+                "dep": "buffer-from@1.1.1",
+                "name": "buffer-from",
+            },
+            {
+                "dep": "source-map@0.6.1",
+                "name": "source-map",
+            },
+        ],
+    },
+    {
+        "name": "source-map@0.6.1",
+        "url": "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263",
+        "integrity": "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==",
         "deps": [],
     },
     {
@@ -45,6 +72,10 @@ ROOTS = [
     {
         "name": "prettier",
         "dep": "prettier@2.1.2",
+    },
+    {
+        "name": "source-map-support",
+        "dep": "source-map-support@0.5.19",
     },
     {
         "name": "tslib",

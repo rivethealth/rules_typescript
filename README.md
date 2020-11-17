@@ -6,7 +6,7 @@ Bazel rules for TypeScript, with an emphasis on idiomatic Bazel APIs.
 
 - [ ] library
     - [x] basic
-    - [ ] declarations
+    - [x] declarations
     - [ ] worker
 - [ ] external dependency
     - [ ] @types

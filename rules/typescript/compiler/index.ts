@@ -1,3 +1,4 @@
+// import "source-map-support/register";
 import { ArgumentParser } from "argparse";
 
 const parser = new ArgumentParser();
@@ -10,7 +11,9 @@ jsParser.add_argument("--js", { required: true });
 jsParser.add_argument("src");
 
 const dtsParser = subparsers.add_parser("dts");
-dtsParser.add_argument("--file", { action: "append", nargs: 2 });
+dtsParser.add_argument("--manifest", { required: true });
+dtsParser.add_argument("--dts", { action: "append" });
+dtsParser.add_argument("--src", { action: "append", nargs: 2 });
 
 const args = parser.parse_args();
 

@@ -26,6 +26,9 @@ function target(value: string) {
   }
 }
 
+/**
+ * js CLI
+ */
 export default function (args) {
   const input = fs.readFileSync(args.src, "utf8");
   const result = ts.transpileModule(input, {

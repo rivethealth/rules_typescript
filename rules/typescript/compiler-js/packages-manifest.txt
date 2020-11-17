@@ -1,0 +1,1 @@
+{"type":"PACKAGE","value":{"deps":[],"id":"//rules/typescript:ts","main":null,"modules":[{"file":"rules/typescript/compiler/dts.ts","name":"dts.ts"},{"file":"rules/typescript/compiler/index.ts","name":"index.ts"},{"file":"rules/typescript/compiler/js.ts","name":"js.ts"}],"name":"@better_rules_typescript/rules/typescript"}}
