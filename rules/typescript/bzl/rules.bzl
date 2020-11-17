@@ -139,6 +139,10 @@ def _ts_library_impl(ctx):
         if JsInfo in dep
         for id in dep[JsInfo].ids
     ]
+    package_deps += [
+      create_package_dep(compiler.runtime.name, id)
+      for id in compiler.runtime.ids
+    ]
     js_package = create_package(
         id = str(ctx.label),
         name = package_name,
