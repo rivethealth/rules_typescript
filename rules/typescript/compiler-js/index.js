@@ -10,6 +10,7 @@ jsParser.add_argument("--map", { required: true });
 jsParser.add_argument("--js", { required: true });
 jsParser.add_argument("src");
 const dtsParser = subparsers.add_parser("dts");
+dtsParser.add_argument("--lib", { action: "append" });
 dtsParser.add_argument("--manifest", { required: true });
 dtsParser.add_argument("--dts", { action: "append" });
 dtsParser.add_argument("--src", { action: "append", nargs: 2 });

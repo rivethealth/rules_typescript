@@ -19,6 +19,7 @@ def _ts_compiler_impl(ctx):
     return TsCompilerInfo(
         dep = js_info,
         manifest = packages_manifest,
+        lib = ctx.attr.lib,
         runtime = ctx.attr.runtime[JsInfo],
         target = ctx.attr.target,
     )
@@ -30,6 +31,7 @@ ts_compiler = rule(
             default = "//rules/typescript:js",
             providers = [JsInfo],
         ),
+        "lib": attr.string_list(),
         "typescript": attr.label(
             mandatory = True,
             providers = [JsInfo],
@@ -83,6 +85,9 @@ def _ts_library_impl(ctx):
 
     manifest = ctx.actions.declare_file("%s/packages-manifest.txt" % ctx.label.name)
     ts_args.add("--manifest", manifest.path)
+
+    for lib in compiler.lib:
+      ts_args.add("--lib", lib)
 
     for src in ctx.files.srcs:
         path = runfile_path(ctx, src)
@@ -239,7 +244,7 @@ ts_library = rule(
 )
 
 def _ts_import_impl(ctx):
-    package_name = ctx.attr.package_name or default_package_name(ctx)
+    package_name = ctx.attr.js_name or default_package_name(ctx)
     strip_prefix = ctx.attr.strip_prefix or default_strip_prefix(ctx)
 
     dts_modules = []
@@ -263,6 +268,7 @@ def _ts_import_impl(ctx):
     dts_package = create_package(
         id = str(ctx.label),
         name = package_name,
+        main = ctx.attr.main,
         modules = tuple(dts_modules),
         deps = tuple(ts_deps),
     )
@@ -273,7 +279,12 @@ def _ts_import_impl(ctx):
         deps = [dep[TsInfo] for dep in ctx.attr.deps if TsInfo in dep],
     )
 
-    return [dts_info]
+    js_info = merge_js(
+        package_name,
+        deps = [dep[JsInfo] for dep in ctx.attr.deps if JsInfo in dep],
+    )
+
+    return [js_info, dts_info]
 
 ts_import = rule(
     implementation = _ts_import_impl,
@@ -290,11 +301,14 @@ ts_import = rule(
             doc = "Dependencies",
             providers = [[JsInfo], [TsInfo]],
         ),
-        "package_name": attr.string(
+        "js_name": attr.string(
             doc = "Package name",
         ),
         "strip_prefix": attr.string(
             doc = "Strip prefix",
+        ),
+        "main": attr.string(
+          doc = "Main"
         ),
         "prefix": attr.string(
             doc = "Prefix",

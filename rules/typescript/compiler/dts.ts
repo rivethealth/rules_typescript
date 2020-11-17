@@ -11,10 +11,13 @@ function compilerHost(
   const compilerHost = ts.createCompilerHost({});
   compilerHost.resolveModuleNames = (moduleNames, containingFile) =>
     moduleNames.map((moduleName) => {
+      let result: ts.ResolvedModule | undefined;
       try {
-        return resolver.resolve(moduleName, containingFile);
-      } catch {}
-      return undefined;
+         result = { resolvedFileName: resolver.resolve(moduleName, containingFile)};
+      } catch (e) {
+        console.log(e.message);
+      }
+      return result;
     });
 
   ((delegate: ts.WriteFileCallback) =>
@@ -85,9 +88,10 @@ export default function (args) {
   Resolver.readManifest(resolver, args.manifest, (path) => path);
 
   const host = compilerHost(resolver, new Map(args.src));
+  const libs = ['lib.d.ts', ...(args.lib || []).map(name => `lib.${name}.d.ts`)];
   const program = ts.createProgram(
     [...(args.dts || []), ...args.src.map(([source]) => source)],
-    { emitDeclarationOnly: true, declaration: true },
+    { emitDeclarationOnly: true, declaration: true, lib: libs, target: ts.ScriptTarget.ESNext },
     host,
   );
 

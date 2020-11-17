@@ -8,11 +8,14 @@ const resolver_1 = require("@better_rules_javascript/rules/javascript/resolver")
 function compilerHost(resolver, files) {
     const compilerHost = ts.createCompilerHost({});
     compilerHost.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((moduleName) => {
+        let result;
         try {
-            return resolver.resolve(moduleName, containingFile);
+            result = { resolvedFileName: resolver.resolve(moduleName, containingFile) };
         }
-        catch (_a) { }
-        return undefined;
+        catch (e) {
+            console.log(e.message);
+        }
+        return result;
     });
     ((delegate) => (compilerHost.writeFile = (fileName, contents, writeByteOrderMark, onError, sourceFiles) => {
         if (fileName.startsWith(process.cwd())) {
@@ -66,7 +69,8 @@ function default_1(args) {
     const resolver = new resolver_1.Resolver(false, pathVariations);
     resolver_1.Resolver.readManifest(resolver, args.manifest, (path) => path);
     const host = compilerHost(resolver, new Map(args.src));
-    const program = ts.createProgram([...(args.dts || []), ...args.src.map(([source]) => source)], { emitDeclarationOnly: true, declaration: true }, host);
+    const libs = ['lib.d.ts', ...(args.lib || []).map(name => `lib.${name}.d.ts`)];
+    const program = ts.createProgram([...(args.dts || []), ...args.src.map(([source]) => source)], { emitDeclarationOnly: true, declaration: true, lib: libs, target: ts.ScriptTarget.ESNext }, host);
     const result = program.emit();
     const diagnostics = ts.getPreEmitDiagnostics(program)
         .concat(result.diagnostics);
