@@ -87,7 +87,7 @@ def _ts_library_impl(ctx):
     ts_args.add("--manifest", manifest.path)
 
     for lib in compiler.lib:
-      ts_args.add("--lib", lib)
+        ts_args.add("--lib", lib)
 
     for src in ctx.files.srcs:
         path = runfile_path(ctx, src)
@@ -140,8 +140,8 @@ def _ts_library_impl(ctx):
         for id in dep[JsInfo].ids
     ]
     package_deps += [
-      create_package_dep(compiler.runtime.name, id)
-      for id in compiler.runtime.ids
+        create_package_dep(compiler.runtime.name, id)
+        for id in compiler.runtime.ids
     ]
     js_package = create_package(
         id = str(ctx.label),
@@ -312,7 +312,7 @@ ts_import = rule(
             doc = "Strip prefix",
         ),
         "main": attr.string(
-          doc = "Main"
+            doc = "Main",
         ),
         "prefix": attr.string(
             doc = "Prefix",

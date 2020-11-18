@@ -7,16 +7,21 @@ const resolver_1 = require("@better_rules_javascript/rules/javascript/resolver")
  */
 function compilerHost(resolver, files) {
     const compilerHost = ts.createCompilerHost({});
-    compilerHost.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((moduleName) => {
-        let result;
-        try {
-            result = { resolvedFileName: resolver.resolve(moduleName, containingFile) };
+    compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
+        if (containingFile.startsWith(`${process.cwd()}/`)) {
+            containingFile = containingFile.slice(process.cwd().length + 1);
         }
-        catch (e) {
-            console.log(e.message);
-        }
-        return result;
-    });
+        return moduleNames.map((moduleName) => {
+            let result;
+            try {
+                result = { resolvedFileName: resolver.resolve(moduleName, containingFile) };
+            }
+            catch (e) {
+                console.log(e.message);
+            }
+            return result;
+        });
+    };
     ((delegate) => (compilerHost.writeFile = (fileName, contents, writeByteOrderMark, onError, sourceFiles) => {
         if (fileName.startsWith(process.cwd())) {
             fileName = fileName.slice(process.cwd().length + 1);

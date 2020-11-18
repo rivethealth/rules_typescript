@@ -9,16 +9,22 @@ function compilerHost(
   files: Map<string, string>,
 ): ts.CompilerHost {
   const compilerHost = ts.createCompilerHost({});
-  compilerHost.resolveModuleNames = (moduleNames, containingFile) =>
-    moduleNames.map((moduleName) => {
+  compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
+    if (containingFile.startsWith(`${process.cwd()}/`)) {
+      containingFile = containingFile.slice(process.cwd().length + 1);
+    }
+    return moduleNames.map((moduleName) => {
       let result: ts.ResolvedModule | undefined;
       try {
-         result = { resolvedFileName: resolver.resolve(moduleName, containingFile)};
+        result = {
+          resolvedFileName: resolver.resolve(moduleName, containingFile),
+        };
       } catch (e) {
         console.log(e.message);
       }
       return result;
     });
+  };
 
   ((delegate: ts.WriteFileCallback) =>
     (compilerHost.writeFile = (
@@ -88,17 +94,26 @@ export default function (args) {
   Resolver.readManifest(resolver, args.manifest, (path) => path);
 
   const host = compilerHost(resolver, new Map(args.src));
-  const libs = ['lib.d.ts', ...(args.lib || []).map(name => `lib.${name}.d.ts`)];
+  const libs = [
+    "lib.d.ts",
+    ...(args.lib || []).map((name) => `lib.${name}.d.ts`),
+  ];
   const program = ts.createProgram(
     [...(args.dts || []), ...args.src.map(([source]) => source)],
-    { emitDeclarationOnly: true, declaration: true, lib: libs, target: ts.ScriptTarget.ESNext },
+    {
+      emitDeclarationOnly: true,
+      declaration: true,
+      lib: libs,
+      target: ts.ScriptTarget.ESNext,
+    },
     host,
   );
 
   const result = program.emit();
 
-  const diagnostics=  ts.getPreEmitDiagnostics(program)
-  .concat(result.diagnostics);
+  const diagnostics = ts
+    .getPreEmitDiagnostics(program)
+    .concat(result.diagnostics);
 
   if (!diagnostics.length) {
     return;
