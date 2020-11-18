@@ -26,6 +26,7 @@ ts_library(
         "@better_rules_typescript_npm//@types/node:js",
         "@better_rules_typescript_npm//argparse:js",
         "@better_rules_typescript_npm//source-map-support:js",
+        "@better_rules_typescript_npm//typescript:js",
     ],
 )
 

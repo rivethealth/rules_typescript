@@ -20,7 +20,7 @@ function compilerHost(
           resolvedFileName: resolver.resolve(moduleName, containingFile),
         };
       } catch (e) {
-        console.log(e.message);
+        // console.log(e.message);
       }
       return result;
     });
@@ -60,9 +60,18 @@ function compilerHost(
  */
 function pathVariations(request): string[] {
   let variations: string[] = [];
-  if (request.endsWith(".js")) {
+  if (!request) {
+    variations = [
+      'index.ts',
+      'index.tsx',
+      'index.d.ts',
+      'index.js',
+      'index.jsx',
+    ]
+  } else if (request.endsWith(".js")) {
     request = request.slice(-".js".length);
     variations = [
+      request,
       `${request}.ts`,
       `${request}.tsx`,
       `${request}.d.ts`,
@@ -71,6 +80,7 @@ function pathVariations(request): string[] {
     ];
   } else {
     variations = [
+      request,
       `${request}.ts`,
       `${request}.tsx`,
       `${request}.d.ts`,
@@ -98,14 +108,17 @@ export default function (args) {
     "lib.d.ts",
     ...(args.lib || []).map((name) => `lib.${name}.d.ts`),
   ];
+  const options: ts.CompilerOptions = {
+    emitDeclarationOnly: true,
+    declaration: true,
+    lib: libs,
+    module: ts.ModuleKind.ESNext,
+    noEmitOnError: true,
+    target: ts.ScriptTarget.ESNext,
+  };
   const program = ts.createProgram(
     [...(args.dts || []), ...args.src.map(([source]) => source)],
-    {
-      emitDeclarationOnly: true,
-      declaration: true,
-      lib: libs,
-      target: ts.ScriptTarget.ESNext,
-    },
+    options,
     host,
   );
 

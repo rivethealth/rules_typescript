@@ -14,10 +14,12 @@ function compilerHost(resolver, files) {
         return moduleNames.map((moduleName) => {
             let result;
             try {
-                result = { resolvedFileName: resolver.resolve(moduleName, containingFile) };
+                result = {
+                    resolvedFileName: resolver.resolve(moduleName, containingFile),
+                };
             }
             catch (e) {
-                console.log(e.message);
+                // console.log(e.message);
             }
             return result;
         });
@@ -41,9 +43,19 @@ function compilerHost(resolver, files) {
  */
 function pathVariations(request) {
     let variations = [];
-    if (request.endsWith(".js")) {
+    if (!request) {
+        variations = [
+            'index.ts',
+            'index.tsx',
+            'index.d.ts',
+            'index.js',
+            'index.jsx',
+        ];
+    }
+    else if (request.endsWith(".js")) {
         request = request.slice(-".js".length);
         variations = [
+            request,
             `${request}.ts`,
             `${request}.tsx`,
             `${request}.d.ts`,
@@ -53,6 +65,7 @@ function pathVariations(request) {
     }
     else {
         variations = [
+            request,
             `${request}.ts`,
             `${request}.tsx`,
             `${request}.d.ts`,
@@ -74,10 +87,22 @@ function default_1(args) {
     const resolver = new resolver_1.Resolver(false, pathVariations);
     resolver_1.Resolver.readManifest(resolver, args.manifest, (path) => path);
     const host = compilerHost(resolver, new Map(args.src));
-    const libs = ['lib.d.ts', ...(args.lib || []).map(name => `lib.${name}.d.ts`)];
-    const program = ts.createProgram([...(args.dts || []), ...args.src.map(([source]) => source)], { emitDeclarationOnly: true, declaration: true, lib: libs, target: ts.ScriptTarget.ESNext }, host);
+    const libs = [
+        "lib.d.ts",
+        ...(args.lib || []).map((name) => `lib.${name}.d.ts`),
+    ];
+    const options = {
+        emitDeclarationOnly: true,
+        declaration: true,
+        lib: libs,
+        module: ts.ModuleKind.ESNext,
+        noEmitOnError: true,
+        target: ts.ScriptTarget.ESNext,
+    };
+    const program = ts.createProgram([...(args.dts || []), ...args.src.map(([source]) => source)], options, host);
     const result = program.emit();
-    const diagnostics = ts.getPreEmitDiagnostics(program)
+    const diagnostics = ts
+        .getPreEmitDiagnostics(program)
         .concat(result.diagnostics);
     if (!diagnostics.length) {
         return;

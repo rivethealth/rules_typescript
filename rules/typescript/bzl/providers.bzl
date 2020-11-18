@@ -49,3 +49,32 @@ def create_ts(package, ambiant = [], declarations = [], deps = []):
         transitive_declarations = transitive_declarations,
         transitive_packages = transitive_packages,
     )
+
+def merge_ts(name, deps = []):
+    """
+    Combine TsInfo
+
+    :param str name: Package name
+    :param list deps: Collected TsInfos
+    """
+    ids = {id: None for ts_info in deps for id in ts_info.ids}.keys()
+    transitive_ambiant = depset(
+        [],
+        transitive = [ts_info.transitive_ambiant for ts_info in deps],
+    )
+    transitive_declarations = depset(
+        [],
+        transitive = [ts_info.transitive_declarations for ts_info in deps],
+    )
+    transitive_packages = depset(
+        [],
+        transitive = [ts_info.transitive_packages for ts_info in deps],
+    )
+
+    return TsInfo(
+        ids = ids,
+        name = name,
+        transitive_ambiant = transitive_ambiant,
+        transitive_declarations = transitive_declarations,
+        transitive_packages = transitive_packages,
+    )
