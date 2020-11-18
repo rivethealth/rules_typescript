@@ -251,9 +251,6 @@ def _ts_import_impl(ctx):
     package_name = ctx.attr.js_name or default_package_name(ctx)
     strip_prefix = ctx.attr.strip_prefix or default_strip_prefix(ctx)
 
-    if (ctx.attr.main.endswith(".js")):
-      fail(str(ctx.label))
-
     dts_modules = []
     for src in ctx.files.declarations:
         path = runfile_path(ctx, src)
@@ -286,8 +283,8 @@ def _ts_import_impl(ctx):
         deps = [dep[TsInfo] for dep in ctx.attr.deps if TsInfo in dep],
     )
     dts_info = merge_ts(
-      package_name,
-      deps = [dts_info] + [dep[TsInfo] for dep in ctx.attr.deps if TsInfo in dep],
+        package_name,
+        deps = [dts_info] + [dep[TsInfo] for dep in ctx.attr.deps if TsInfo in dep],
     )
 
     js_info = merge_js(

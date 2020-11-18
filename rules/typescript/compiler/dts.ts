@@ -62,12 +62,12 @@ function pathVariations(request): string[] {
   let variations: string[] = [];
   if (!request) {
     variations = [
-      'index.ts',
-      'index.tsx',
-      'index.d.ts',
-      'index.js',
-      'index.jsx',
-    ]
+      "index.ts",
+      "index.tsx",
+      "index.d.ts",
+      "index.js",
+      "index.jsx",
+    ];
   } else if (request.endsWith(".js")) {
     request = request.slice(-".js".length);
     variations = [
